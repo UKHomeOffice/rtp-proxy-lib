@@ -8,8 +8,11 @@ import akka.pattern.ask
 import akka.util.Timeout
 import spray.can.Http
 import spray.can.Http.ClientConnectionType
-import spray.http.HttpResponse
+import spray.http.MediaTypes._
+import spray.http.{HttpEntity, HttpResponse}
 import spray.routing._
+import org.json4s.JsonDSL._
+import org.json4s.jackson.JsonMethods._
 
 trait Proxying {
   val proxy: ActorSystem => Server => ProxiedServer => Any = implicit system => server => proxiedServer => {
@@ -33,9 +36,21 @@ class ProxyService(val connector: ActorRef) extends HttpServiceActor with ProxyS
 trait ProxyServiceRoute extends Directives {
   implicit val timeout: Timeout = Timeout(5 seconds)
 
-  val route: Route = (ctx: RequestContext) => ctx.complete {
+  val serverRoute: Route = pathPrefix("proxy-health-check") {
+    pathEndOrSingleSlash {
+      get {
+        complete {
+          HttpEntity(`application/json`, pretty(render("status" -> "Congratulations")))
+        }
+      }
+    }
+  }
+
+  val proxiedServerRoute: Route = (ctx: RequestContext) => ctx.complete {
     connector.ask(ctx.request).mapTo[HttpResponse]
   }
+
+  val route: Route = serverRoute ~ proxiedServerRoute
 
   def connector: ActorRef
 }
