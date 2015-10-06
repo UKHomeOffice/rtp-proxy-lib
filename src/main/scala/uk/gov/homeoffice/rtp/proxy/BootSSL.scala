@@ -5,7 +5,7 @@ import grizzled.slf4j.Logging
 import uk.gov.homeoffice.configuration.HasConfig
 import uk.gov.homeoffice.console.Console
 
-object Boot extends App with Proxying with ProxyingConfiguration with HasConfig with Console with Logging {
+object BootSSL extends App with Proxying with SSLProxyingConfiguration with HasConfig with Console with Logging {
   present("RTP Proxy Service")
 
   val proxiedServer = ProxiedServer(config.getString("proxied.server.host"), config.getInt("proxied.server.port"))
