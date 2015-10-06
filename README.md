@@ -1,7 +1,7 @@
-RTP Proxy Service
+RTP Proxy Library
 =================
 
-Scala Spray service to proxy request/response between client and server
+Scala Spray library to proxy request/response between client and server
 
 Application built with the following (main) technologies:
 
