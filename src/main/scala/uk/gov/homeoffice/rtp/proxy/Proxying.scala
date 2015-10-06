@@ -15,7 +15,7 @@ import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
 
 trait Proxying {
-  val proxy: ActorSystem => Server => ProxiedServer => Any = implicit system => server => proxiedServer => {
+  val proxy: ProxiedServer => Server => ActorSystem => Any = proxiedServer => server => implicit system => {
     implicit val timeout: Timeout = Timeout(5 seconds)
 
     val proxiedServerConnectorSetup = Http.HostConnectorSetup(proxiedServer.host, proxiedServer.port,
@@ -36,11 +36,11 @@ class ProxyService(val connector: ActorRef) extends HttpServiceActor with ProxyS
 trait ProxyServiceRoute extends Directives {
   implicit val timeout: Timeout = Timeout(5 seconds)
 
-  val serverRoute: Route = pathPrefix("proxy-health-check") {
+  val serverRoute: Route = pathPrefix("proxy-server") {
     pathEndOrSingleSlash {
       get {
         complete {
-          HttpEntity(`application/json`, pretty(render("status" -> "Congratulations")))
+          HttpEntity(`application/json`, pretty(render("status" -> "I am here!")))
         }
       }
     }

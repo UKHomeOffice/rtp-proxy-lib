@@ -8,15 +8,15 @@ import uk.gov.homeoffice.console.Console
 object Boot extends App with Proxying with HasConfig with Console with Logging {
   present("RTP Proxy Service")
 
+  val proxiedServer = ProxiedServer(config.getString("proxied.server.host"), config.getInt("proxied.server.port"))
+
+  val server = Server(config.getString("spray.can.server.host"), config.getInt("spray.can.server.port"))
+
   val system = ActorSystem(config.getString("spray.can.server.name"))
 
   sys.addShutdownHook {
     system.shutdown()
   }
 
-  proxy(system) {
-    Server(config.getString("spray.can.server.host"), config.getInt("spray.can.server.port"))
-  } {
-    ProxiedServer(config.getString("proxied.server.host"), config.getInt("proxied.server.port"))
-  }
+  proxy(proxiedServer)(server)(system)
 }
