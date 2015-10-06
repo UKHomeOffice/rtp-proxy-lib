@@ -36,7 +36,8 @@ object Build extends Build {
         "com.typesafe" % "config" % "1.3.0" withSources(),
         "org.json4s" %% "json4s-jackson" % "3.2.11" withSources(),
         "org.json4s" %% "json4s-ext" % "3.2.11" withSources(),
-        "org.scalactic" %% "scalactic" % "2.2.4" withSources()),
+        "org.scalactic" %% "scalactic" % "2.2.4" withSources(),
+        "org.springframework" % "spring-core" % "4.2.1.RELEASE" withSources()),
       libraryDependencies ++= Seq(
         "com.typesafe.akka" %% "akka-testkit" % "2.3.12" % Test withSources(),
         "io.spray" %% "spray-testkit" % "1.3.3" % Test withSources() excludeAll ExclusionRule(organization = "org.specs2"),
