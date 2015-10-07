@@ -79,6 +79,60 @@ and running from directory of the executable JAR using a config that is within s
 Finally you can perform a quick test of the application by calling one of the monitor API e.g. making a cURL call to the application:
 > curl http://localhost:9300/proxy 
 
+Example Usage
+-------------
+Proxying can be just a dum proxy or it can use certificates to create a SSL connection.
+There are examples in the code e.g. regarding SSL the application configuration would be similar to:
+```scala
+spray {
+  can {
+    server {
+      sslEncryption = true
+      ssl-tracing = on
+    }
+
+    client {
+      sslEncryption = true
+    }
+  }
+}
+
+proxied.server {
+  host = "localhost"
+  port = 8443
+}
+
+ssl {
+  keystore {
+    type = "jks"
+    path = "classpath:test.keystore"
+    password = "password"
+  }
+
+  truststore {
+    type = "jks"
+    path = "classpath:test.keystore"
+    password = "password"
+  }
+}
+```
+And a "boot" object would be required for your proxy such as:
+```scala
+object Boot extends App with Proxying with SSLProxyingConfiguration with HasConfig {
+  val proxiedServer = ProxiedServer(config.getString("proxied.server.host"), config.getInt("proxied.server.port"))
+
+  val server = Server(config.getString("spray.can.server.host"), config.getInt("spray.can.server.port"))
+
+  implicit val system = ActorSystem(config.getString("spray.can.server.name"))
+
+  sys.addShutdownHook {
+    system.shutdown()
+  }
+
+  proxy(proxiedServer, server)
+}
+```
+
 SBT - Revolver
 --------------
 sbt-revolver is a plugin for SBT enabling a super-fast development turnaround for your Scala applications:
@@ -89,3 +143,37 @@ For development, you can use ~re-start to go into "triggered restart" mode.
 Your application starts up and SBT watches for changes in your source (or resource) files.
 If a change is detected SBT recompiles the required classes and sbt-revolver automatically restarts your application. 
 When you press &lt;ENTER&gt; SBT leaves "triggered restart" and returns to the normal prompt keeping your application running.
+
+SSL
+---
+Generate x509 certificate and private key:
+```bash
+openssl req 
+        -x509 
+        -sha256 
+        -newkey rsa:2048 
+        -keyout test-certificate.key 
+        -out test-certificate.crt 
+        -days 100000 
+        -nodes
+```
+
+On JVM platform the goal is to have a Java keystore (JKS), a repository of security certificates.
+To import our newly generated certificate into JKS, we have to export it in PKCS12 format and then create keystore out of it:
+```bash
+openssl pkcs12 
+        -export 
+        -in test-certificate.crt 
+        -inkey test-certificate.key 
+        -out test-keystore.p12 
+        -name test-keystore 
+        -password pass:password
+
+keytool -importkeystore 
+        -srcstorepass password 
+        -destkeystore test.keystore 
+        -deststorepass password 
+        -srckeystore test-keystore.p12 
+        -srcstoretype PKCS12 
+        -alias test-keystore
+```

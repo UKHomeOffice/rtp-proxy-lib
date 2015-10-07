@@ -7,19 +7,26 @@ import akka.io.IO
 import akka.pattern.ask
 import akka.util.Timeout
 import spray.can.Http
-import spray.http.HttpResponse
+import spray.http.MediaTypes._
+import spray.http.{HttpEntity, HttpResponse}
 import spray.routing._
+import org.json4s.JsonDSL._
+import org.json4s.jackson.JsonMethods._
 
 trait Proxying {
   this: ProxyingConfiguration =>
 
-  val proxy: ProxiedServer => Server => ActorSystem => Any = proxiedServer => server => implicit system => {
-    implicit val timeout: Timeout = Timeout(5 seconds)
+  def proxy(proxiedServer: ProxiedServer, server: Server)(implicit system: ActorSystem) = {
+    implicit val timeout: Timeout = Timeout(30 seconds)
 
-    IO(Http)(system) ask proxiedServerConnectorSetup(proxiedServer) map {
+    IO(Http)(system) ask proxyingConnectorSetup(proxiedServer) map {
       case Http.HostConnectorInfo(connector, _) =>
         val service = system.actorOf(Props(new ProxyService(connector)))
         IO(Http) ! Http.Bind(service, server.host, server.port)
+    }
+
+    sys.addShutdownHook {
+      IO(Http) ? Http.CloseAll
     }
   }
 }
@@ -29,9 +36,9 @@ class ProxyService(val connector: ActorRef) extends HttpServiceActor with ProxyS
 }
 
 trait ProxyServiceRoute extends Directives {
-  implicit val timeout: Timeout = Timeout(5 seconds)
+  implicit val timeout: Timeout = Timeout(30 seconds)
 
-  /*val serverRoute: Route = pathPrefix("proxy-server") {
+  val serverRoute: Route = pathPrefix("proxy-server") {
     pathEndOrSingleSlash {
       get {
         complete {
@@ -39,13 +46,13 @@ trait ProxyServiceRoute extends Directives {
         }
       }
     }
-  }*/
+  }
 
   val proxiedServerRoute: Route = (ctx: RequestContext) => ctx.complete {
     connector.ask(ctx.request).mapTo[HttpResponse]
   }
 
-  val route: Route = /*serverRoute ~*/ proxiedServerRoute
+  val route: Route = serverRoute ~ proxiedServerRoute
 
   def connector: ActorRef
 }

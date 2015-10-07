@@ -5,7 +5,7 @@ import java.security.{KeyStore, SecureRandom}
 import javax.net.ssl.{KeyManagerFactory, SSLContext, TrustManagerFactory}
 import scala.collection.JavaConversions._
 import spray.can.Http
-import spray.can.Http.ClientConnectionType
+import spray.can.Http.{HostConnectorSetup, ClientConnectionType}
 import spray.io.ServerSSLEngineProvider
 import org.springframework.util.ResourceUtils
 import com.typesafe.config.Config
@@ -13,18 +13,19 @@ import grizzled.slf4j.Logging
 import uk.gov.homeoffice.resource.CloseableResource._
 
 trait ProxyingConfiguration {
-  val proxiedServerConnectorSetup: ProxiedServer => Http.HostConnectorSetup =
-    proxiedServer => Http.HostConnectorSetup(proxiedServer.host, proxiedServer.port,
-      connectionType = ClientConnectionType.Proxied(proxiedServer.host, proxiedServer.port))
+  val hostConnectorSetup: Http.HostConnectorSetup => Http.HostConnectorSetup = h => h
+  
+  val proxyingConnectorSetup: ProxiedServer => Http.HostConnectorSetup =
+    proxiedServer => hostConnectorSetup {
+      Http.HostConnectorSetup(proxiedServer.host, proxiedServer.port,
+        connectionType = ClientConnectionType.Proxied(proxiedServer.host, proxiedServer.port))
+    }
 }
 
 trait SSLProxyingConfiguration extends ProxyingConfiguration with Logging {
   def config: Config
 
-  override val proxiedServerConnectorSetup: ProxiedServer => Http.HostConnectorSetup =
-    proxiedServer => Http.HostConnectorSetup(proxiedServer.host, proxiedServer.port,
-      connectionType = ClientConnectionType.Proxied(proxiedServer.host, proxiedServer.port),
-      sslEncryption = true)
+  override val hostConnectorSetup: (HostConnectorSetup) => HostConnectorSetup = _.copy(sslEncryption = true)
 
   implicit def sslContext: SSLContext = {
     val keystoreType = config.getString("ssl.keystore.type")
@@ -54,7 +55,7 @@ trait SSLProxyingConfiguration extends ProxyingConfiguration with Logging {
   implicit def sslEngineProvider: ServerSSLEngineProvider = {
     ServerSSLEngineProvider { engine =>
       /*engine.setEnabledCipherSuites(Array("TLS_RSA_WITH_AES_256_CBC_SHA"))
-      engine.setEnabledProtocols(Array("SSLv3", "TLSv1"))*/
+      engine.setEnabledProtocols(Array("TLSv1", "TLSv1.1", "TLSv1.2"))*/
       engine
     }
   }
@@ -64,7 +65,7 @@ trait SSLProxyingConfiguration extends ProxyingConfiguration with Logging {
       val keystore = KeyStore.getInstance(keystoreType)
 
       keystore.load(keystoreInputStream, keystorePassword.toCharArray)
-      info(s"===> Loaded keystore of type '$keystoreType' from $keystorePath")
+      info(s"Loaded keystore of type '$keystoreType' from $keystorePath")
       keystore.aliases().toSeq foreach { a => info(s"Keystore alias: $a") }
       keystore
     }

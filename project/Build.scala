@@ -3,7 +3,7 @@ import sbt._
 import spray.revolver.RevolverPlugin._
 
 object Build extends Build {
-  val moduleName = "rtp-proxy-service"
+  val moduleName = "rtp-proxy-lib"
 
   lazy val proxy = Project(id = moduleName, base = file("."))
     .configs(IntegrationTest)
@@ -41,8 +41,7 @@ object Build extends Build {
       libraryDependencies ++= Seq(
         "com.typesafe.akka" %% "akka-testkit" % "2.3.12" % Test withSources(),
         "io.spray" %% "spray-testkit" % "1.3.3" % Test withSources() excludeAll ExclusionRule(organization = "org.specs2"),
-        "com.github.fakemongo" % "fongo" % "1.6.2" % Test withSources(),
-        "uk.gov.homeoffice" %% "rtp-test-lib" % "1.0-SNAPSHOT" % Test classifier "tests" withSources()
+        "com.github.fakemongo" % "fongo" % "1.6.2" % Test withSources()
       ))
 
   val ioPath = "../rtp-io-lib"
