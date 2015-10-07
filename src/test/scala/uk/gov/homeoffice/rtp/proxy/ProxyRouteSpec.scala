@@ -4,12 +4,11 @@ import akka.actor.Actor
 import akka.testkit.TestActorRef
 import spray.http.StatusCodes.OK
 import spray.http._
-import org.specs2.concurrent.ExecutionEnv
 import org.specs2.mock.Mockito
 import uk.gov.homeoffice.akka.ActorSystemContext
 import uk.gov.homeoffice.spray.RouteSpecification
 
-class ProxyRouteSpec(implicit ev: ExecutionEnv) extends RouteSpecification with Mockito {
+class ProxyRouteSpec extends RouteSpecification with Mockito {
   trait Context extends ActorSystemContext with ProxyRoute {
     /*val connector = mock[ActorRef]
     connector.ask(any) returns Future { HttpResponse(status = OK) }*/

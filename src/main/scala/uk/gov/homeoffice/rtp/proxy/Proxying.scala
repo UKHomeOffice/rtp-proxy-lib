@@ -14,15 +14,19 @@ import spray.routing._
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
 
-trait Proxying {
-  this: ProxyingConfiguration =>
+object Proxying {
+  def apply() = new Proxying(h => h)
 
+  def apply(hostConnectorSetup: Http.HostConnectorSetup => Http.HostConnectorSetup) = new Proxying(hostConnectorSetup)
+}
+
+class Proxying private[proxy] (hostConnectorSetup: Http.HostConnectorSetup => Http.HostConnectorSetup) {
   def proxy(proxiedServer: ProxiedServer, server: Server)(implicit system: ActorSystem) = {
     implicit val timeout: Timeout = Timeout(30 seconds)
 
     val proxyingConnectorSetup = hostConnectorSetup {
       Http.HostConnectorSetup(proxiedServer.host, proxiedServer.port,
-        connectionType = ClientConnectionType.Proxied(proxiedServer.host, proxiedServer.port))
+                              connectionType = ClientConnectionType.Proxied(proxiedServer.host, proxiedServer.port))
     }
 
     IO(Http)(system) ask proxyingConnectorSetup map {
@@ -37,10 +41,6 @@ trait Proxying {
         proxyActor
     }
   }
-}
-
-trait ProxyingConfiguration {
-  val hostConnectorSetup: Http.HostConnectorSetup => Http.HostConnectorSetup = h => h
 }
 
 class ProxyActor(val connector: ActorRef) extends HttpServiceActor with ProxyRoute {

@@ -3,9 +3,9 @@ package uk.gov.homeoffice.rtp.proxy.example
 import akka.actor.ActorSystem
 import uk.gov.homeoffice.configuration.HasConfig
 import uk.gov.homeoffice.console.Console
-import uk.gov.homeoffice.rtp.proxy.{ProxiedServer, Proxying, ProxyingConfiguration, Server}
+import uk.gov.homeoffice.rtp.proxy.{ProxiedServer, Proxying, Server}
 
-object ExampleBoot extends App with Proxying with ProxyingConfiguration with HasConfig with Console {
+object ExampleBoot extends App with HasConfig with Console {
   present("RTP Proxy Example")
 
   val proxiedServer = ProxiedServer(config.getString("proxied.server.host"), config.getInt("proxied.server.port"))
@@ -18,5 +18,5 @@ object ExampleBoot extends App with Proxying with ProxyingConfiguration with Has
     system.shutdown()
   }
 
-  proxy(proxiedServer, server)
+  Proxying().proxy(proxiedServer, server)
 }
