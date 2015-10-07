@@ -9,8 +9,8 @@ import org.specs2.mock.Mockito
 import uk.gov.homeoffice.akka.ActorSystemContext
 import uk.gov.homeoffice.spray.RouteSpecification
 
-class ProxyServiceRouteSpec(implicit ev: ExecutionEnv) extends RouteSpecification with Mockito {
-  trait Context extends ActorSystemContext with ProxyServiceRoute {
+class ProxyRouteSpec(implicit ev: ExecutionEnv) extends RouteSpecification with Mockito {
+  trait Context extends ActorSystemContext with ProxyRoute {
     /*val connector = mock[ActorRef]
     connector.ask(any) returns Future { HttpResponse(status = OK) }*/
 
@@ -24,7 +24,7 @@ class ProxyServiceRouteSpec(implicit ev: ExecutionEnv) extends RouteSpecificatio
     }
   }
 
-  "Proxy service" should {
+  "Proxy route" should {
     "proxy a GET" in new Context {
       Get("/") ~> route ~> check {
         status mustEqual OK
@@ -38,10 +38,3 @@ class ProxyServiceRouteSpec(implicit ev: ExecutionEnv) extends RouteSpecificatio
     }
   }
 }
-
-/*
-case class HttpRequest(method: HttpMethod = HttpMethods.GET,
-                       uri: Uri = Uri./,
-                       headers: List[HttpHeader] = Nil,
-                       entity: HttpEntity = HttpEntity.Empty,
-                       protocol: HttpProtocol = HttpProtocols.`HTTP/1.1`)*/

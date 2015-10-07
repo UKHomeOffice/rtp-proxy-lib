@@ -1,8 +1,9 @@
-package uk.gov.homeoffice.rtp.proxy
+package uk.gov.homeoffice.rtp.proxy.example
 
 import akka.actor.ActorSystem
 import uk.gov.homeoffice.configuration.HasConfig
 import uk.gov.homeoffice.console.Console
+import uk.gov.homeoffice.rtp.proxy.{ProxiedServer, Proxying, ProxyingConfiguration, Server}
 
 object ExampleBoot extends App with Proxying with ProxyingConfiguration with HasConfig with Console {
   present("RTP Proxy Example")

@@ -7,7 +7,7 @@ import grizzled.slf4j.Logging
 import uk.gov.homeoffice.rtp.proxy.ProxyingConfiguration
 
 trait SSLProxyingConfiguration extends ProxyingConfiguration with Logging {
-  override val hostConnectorSetup: (HostConnectorSetup) => HostConnectorSetup = _.copy(sslEncryption = true)
+  override val hostConnectorSetup: HostConnectorSetup => HostConnectorSetup = _.copy(sslEncryption = true)
 
   implicit def sslContext: SSLContext
 
