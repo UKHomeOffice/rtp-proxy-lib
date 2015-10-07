@@ -118,9 +118,7 @@ ssl {
 ```
 And a "boot" object would be required for your proxy such as:
 ```scala
-object Boot extends App with Proxying with SSLProxyingConfiguration with HasConfig {
-  val sslContext = SSL.sslContext(config)
-  
+object ExampleBootSSL extends App with HasConfig {
   val proxiedServer = ProxiedServer(config.getString("proxied.server.host"),
                                     config.getInt("proxied.server.port"))
 
@@ -133,7 +131,7 @@ object Boot extends App with Proxying with SSLProxyingConfiguration with HasConf
     system.shutdown()
   }
 
-  proxy(proxiedServer, server)
+  SSLProxying(sslContext(config)).proxy(proxiedServer, server)
 }
 ```
 

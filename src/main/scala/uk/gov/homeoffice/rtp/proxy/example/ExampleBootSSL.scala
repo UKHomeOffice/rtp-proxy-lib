@@ -3,7 +3,8 @@ package uk.gov.homeoffice.rtp.proxy.example
 import akka.actor.ActorSystem
 import uk.gov.homeoffice.configuration.HasConfig
 import uk.gov.homeoffice.console.Console
-import uk.gov.homeoffice.rtp.proxy.ssl.{SSL, SSLProxying}
+import uk.gov.homeoffice.rtp.proxy.ssl.SSL._
+import uk.gov.homeoffice.rtp.proxy.ssl.SSLProxying
 import uk.gov.homeoffice.rtp.proxy.{ProxiedServer, Server}
 
 object ExampleBootSSL extends App with HasConfig with Console {
@@ -19,5 +20,5 @@ object ExampleBootSSL extends App with HasConfig with Console {
     system.shutdown()
   }
 
-  SSLProxying(SSL.sslContext(config)).proxy(proxiedServer, server)
+  SSLProxying(sslContext(config)).proxy(proxiedServer, server)
 }
