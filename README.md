@@ -135,6 +135,17 @@ object Boot extends App with Proxying with SSLProxyingConfiguration with HasConf
 }
 ```
 
+We can cURL the application - Note that this is related to the SSL section below e.g.
+```bash
+curl -ki https://localhost:9300
+```
+where -k command line argument turns off SSL certificate verification.
+
+```bash
+curl -i --cacert src/main/resources/test-certificate.crt https://localhost:9300
+```
+where the certificate is passed along with the cURL command so a complete SSL certificate verification takes place.
+
 SBT - Revolver
 --------------
 sbt-revolver is a plugin for SBT enabling a super-fast development turnaround for your Scala applications:
