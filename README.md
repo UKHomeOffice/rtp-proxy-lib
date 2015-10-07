@@ -119,9 +119,11 @@ ssl {
 And a "boot" object would be required for your proxy such as:
 ```scala
 object Boot extends App with Proxying with SSLProxyingConfiguration with HasConfig {
-  val proxiedServer = ProxiedServer(config.getString("proxied.server.host"), config.getInt("proxied.server.port"))
+  val proxiedServer = ProxiedServer(config.getString("proxied.server.host"),
+                                    config.getInt("proxied.server.port"))
 
-  val server = Server(config.getString("spray.can.server.host"), config.getInt("spray.can.server.port"))
+  val server = Server(config.getString("spray.can.server.host"),
+                      config.getInt("spray.can.server.port"))
 
   implicit val system = ActorSystem(config.getString("spray.can.server.name"))
 
