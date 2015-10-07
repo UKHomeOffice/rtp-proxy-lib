@@ -38,7 +38,7 @@ class ProxyService(val connector: ActorRef) extends HttpServiceActor with ProxyS
 trait ProxyServiceRoute extends Directives {
   implicit val timeout: Timeout = Timeout(30 seconds)
 
-  val serverRoute: Route = pathPrefix("proxy-server") {
+  /*val serverRoute: Route = pathPrefix("proxy-server") {
     pathEndOrSingleSlash {
       get {
         complete {
@@ -46,13 +46,13 @@ trait ProxyServiceRoute extends Directives {
         }
       }
     }
-  }
+  }*/
 
   val proxiedServerRoute: Route = (ctx: RequestContext) => ctx.complete {
     connector.ask(ctx.request).mapTo[HttpResponse]
   }
 
-  val route: Route = serverRoute ~ proxiedServerRoute
+  val route: Route = /*serverRoute ~*/ proxiedServerRoute
 
   def connector: ActorRef
 }
