@@ -8,7 +8,7 @@ import uk.gov.homeoffice.rtp.proxy.ssl.SSLProxying
 import uk.gov.homeoffice.rtp.proxy.{ProxiedServer, Server}
 
 object ExampleBootSSL extends App with HasConfig with Console {
-  present("RTP Proxy SSL Example")
+  present("RTP SSL Proxy Example")
 
   val proxiedServer = ProxiedServer(config.getString("proxied.server.host"), config.getInt("proxied.server.port"))
 

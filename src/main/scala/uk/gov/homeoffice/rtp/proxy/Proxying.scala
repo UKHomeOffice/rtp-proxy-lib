@@ -15,12 +15,12 @@ import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
 
 object Proxying {
-  def apply() = new Proxying(h => h)
-
-  def apply(hostConnectorSetup: Http.HostConnectorSetup => Http.HostConnectorSetup) = new Proxying(hostConnectorSetup)
+  def apply() = new Proxying()
 }
 
-class Proxying private[proxy] (hostConnectorSetup: Http.HostConnectorSetup => Http.HostConnectorSetup) {
+class Proxying private[proxy] () {
+  val hostConnectorSetup: Http.HostConnectorSetup => Http.HostConnectorSetup = h => h
+
   def proxy(proxiedServer: ProxiedServer, server: Server)(implicit system: ActorSystem) = {
     implicit val timeout: Timeout = Timeout(30 seconds)
 
@@ -30,8 +30,8 @@ class Proxying private[proxy] (hostConnectorSetup: Http.HostConnectorSetup => Ht
     }
 
     IO(Http)(system) ask proxyingConnectorSetup map {
-      case Http.HostConnectorInfo(connector, _) =>
-        val proxyActor = system.actorOf(Props(new ProxyActor(connector)))
+      case Http.HostConnectorInfo(hostConnector, _) =>
+        val proxyActor = system.actorOf(Props(new ProxyActor(hostConnector)))
         IO(Http) ! Http.Bind(proxyActor, server.host, server.port)
 
         sys.addShutdownHook {
@@ -43,7 +43,7 @@ class Proxying private[proxy] (hostConnectorSetup: Http.HostConnectorSetup => Ht
   }
 }
 
-class ProxyActor(val connector: ActorRef) extends HttpServiceActor with ProxyRoute {
+class ProxyActor(val hostConnector: ActorRef) extends HttpServiceActor with ProxyRoute {
   def receive: Receive = runRoute(route)
 }
 
@@ -62,10 +62,10 @@ trait ProxyRoute extends Directives {
   }*/
 
   val proxiedServerRoute: Route = (ctx: RequestContext) => ctx.complete {
-    connector.ask(ctx.request).mapTo[HttpResponse]
+    (hostConnector ? ctx.request).mapTo[HttpResponse]
   }
 
   val route: Route = /*serverRoute ~*/ proxiedServerRoute
 
-  def connector: ActorRef
+  def hostConnector: ActorRef
 }

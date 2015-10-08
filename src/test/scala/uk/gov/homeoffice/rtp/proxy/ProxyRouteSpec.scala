@@ -13,7 +13,7 @@ class ProxyRouteSpec extends RouteSpecification with Mockito {
     /*val connector = mock[ActorRef]
     connector.ask(any) returns Future { HttpResponse(status = OK) }*/
 
-    val connector = TestActorRef {
+    val hostConnector = TestActorRef {
       new Actor {
         def receive = {
           case _: HttpRequest =>
