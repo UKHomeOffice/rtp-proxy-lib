@@ -10,7 +10,7 @@ object SSLProxying {
 }
 
 class SSLProxying private[ssl] (implicit sslContext: SSLContext) extends Proxying {
-  override val hostConnectorSetup: Http.HostConnectorSetup => Http.HostConnectorSetup = _.copy(sslEncryption = true)
+  override val customiseProxiedConnectorSetup: Http.HostConnectorSetup => Http.HostConnectorSetup = _.copy(sslEncryption = true)
 
   implicit def sslEngineProvider: ServerSSLEngineProvider = {
     ServerSSLEngineProvider { engine =>

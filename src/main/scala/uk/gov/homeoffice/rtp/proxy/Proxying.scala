@@ -19,19 +19,19 @@ object Proxying {
 }
 
 class Proxying private[proxy] () {
-  val hostConnectorSetup: Http.HostConnectorSetup => Http.HostConnectorSetup = h => h
+  val customiseProxiedConnectorSetup: Http.HostConnectorSetup => Http.HostConnectorSetup = h => h
 
   def proxy(proxiedServer: ProxiedServer, server: Server)(implicit system: ActorSystem) = {
     implicit val timeout: Timeout = Timeout(30 seconds)
 
-    val proxyingConnectorSetup = hostConnectorSetup {
+    val proxiedConnectorSetup = customiseProxiedConnectorSetup {
       Http.HostConnectorSetup(proxiedServer.host, proxiedServer.port,
                               connectionType = ClientConnectionType.Proxied(proxiedServer.host, proxiedServer.port))
     }
 
-    IO(Http)(system) ask proxyingConnectorSetup map {
-      case Http.HostConnectorInfo(hostConnector, _) =>
-        val proxyActor = system.actorOf(Props(new ProxyActor(hostConnector)), "host-connector-actor")
+    IO(Http)(system) ask proxiedConnectorSetup map {
+      case Http.HostConnectorInfo(proxiedConnector, _) =>
+        val proxyActor = system.actorOf(Props(new ProxyActor(proxiedConnector)), "proxy-actor")
         IO(Http) ! Http.Bind(proxyActor, server.host, server.port)
 
         sys.addShutdownHook {
@@ -43,7 +43,7 @@ class Proxying private[proxy] () {
   }
 }
 
-class ProxyActor(val hostConnector: ActorRef) extends HttpServiceActor with ProxyRoute {
+class ProxyActor(val proxiedConnector: ActorRef) extends HttpServiceActor with ProxyRoute {
   def receive: Receive = runRoute(route)
 }
 
@@ -62,10 +62,10 @@ trait ProxyRoute extends Directives {
   }*/
 
   val proxiedServerRoute: Route = (ctx: RequestContext) => ctx.complete {
-    hostConnector.ask(ctx.request).mapTo[HttpResponse]
+    proxiedConnector.ask(ctx.request).mapTo[HttpResponse]
   }
 
   val route: Route = /*serverRoute ~*/ proxiedServerRoute
 
-  def hostConnector: ActorRef
+  def proxiedConnector: ActorRef
 }
