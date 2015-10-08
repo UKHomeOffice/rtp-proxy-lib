@@ -31,7 +31,7 @@ class Proxying private[proxy] () {
 
     IO(Http)(system) ask proxyingConnectorSetup map {
       case Http.HostConnectorInfo(hostConnector, _) =>
-        val proxyActor = system.actorOf(Props(new ProxyActor(hostConnector)))
+        val proxyActor = system.actorOf(Props(new ProxyActor(hostConnector)), "host-connector-actor")
         IO(Http) ! Http.Bind(proxyActor, server.host, server.port)
 
         sys.addShutdownHook {
