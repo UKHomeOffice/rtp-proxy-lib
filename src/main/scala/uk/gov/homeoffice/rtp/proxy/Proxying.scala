@@ -62,7 +62,7 @@ trait ProxyRoute extends Directives {
   }*/
 
   val proxiedServerRoute: Route = (ctx: RequestContext) => ctx.complete {
-    (hostConnector ? ctx.request).mapTo[HttpResponse]
+    hostConnector.ask(ctx.request).mapTo[HttpResponse]
   }
 
   val route: Route = /*serverRoute ~*/ proxiedServerRoute
