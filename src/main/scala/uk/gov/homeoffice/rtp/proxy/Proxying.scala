@@ -31,7 +31,7 @@ class Proxying private[proxy] () {
 
     IO(Http)(system) ask proxiedConnectorSetup map {
       case Http.HostConnectorInfo(proxiedConnector, _) =>
-        val proxyActor = system.actorOf(Props(new ProxyActor(proxiedConnector)), "proxy-actor")
+        val proxyActor = system.actorOf(ProxyActor.props(proxiedConnector), "proxy-actor")
         IO(Http) ! Http.Bind(proxyActor, server.host, server.port)
 
         sys.addShutdownHook {
@@ -41,6 +41,10 @@ class Proxying private[proxy] () {
         proxyActor
     }
   }
+}
+
+object ProxyActor {
+  def props(proxiedConnector: ActorRef) = Props(new ProxyActor(proxiedConnector))
 }
 
 class ProxyActor(val proxiedConnector: ActorRef) extends HttpServiceActor with ProxyRoute {
