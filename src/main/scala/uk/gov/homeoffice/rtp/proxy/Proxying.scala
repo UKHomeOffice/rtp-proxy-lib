@@ -13,6 +13,7 @@ import spray.http.{HttpEntity, HttpResponse}
 import spray.routing._
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
+import grizzled.slf4j.Logging
 
 object Proxying {
   def apply() = new Proxying()
@@ -51,7 +52,7 @@ class ProxyActor(val proxiedConnector: ActorRef) extends HttpServiceActor with P
   def receive: Receive = runRoute(route)
 }
 
-trait ProxyRoute extends Directives {
+trait ProxyRoute extends Directives with Logging {
   implicit val timeout: Timeout = Timeout(30 seconds)
 
   // TODO Issue with "health check" route - it can stop the proxy working correctly for some reason
@@ -66,6 +67,7 @@ trait ProxyRoute extends Directives {
   }*/
 
   val proxiedServerRoute: Route = (ctx: RequestContext) => ctx.complete {
+    info(s"Proxying request to URI ${ctx.request.uri}")
     proxiedConnector.ask(ctx.request).mapTo[HttpResponse]
   }
 
