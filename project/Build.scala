@@ -31,17 +31,11 @@ object Build extends Build {
         "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases",
         "Kamon Repository" at "http://repo.kamon.io"),
       libraryDependencies ++= Seq(
-        "org.clapper" %% "grizzled-slf4j" % "1.0.2",
-        "ch.qos.logback" % "logback-classic" % "1.1.3",
-        "com.typesafe" % "config" % "1.3.0" withSources(),
-        "org.json4s" %% "json4s-jackson" % "3.2.11" withSources(),
-        "org.json4s" %% "json4s-ext" % "3.2.11" withSources(),
         "org.scalactic" %% "scalactic" % "2.2.4" withSources(),
         "org.springframework" % "spring-core" % "4.2.1.RELEASE" withSources()),
       libraryDependencies ++= Seq(
-        "com.typesafe.akka" %% "akka-testkit" % "2.3.12" % Test withSources(),
-        "io.spray" %% "spray-testkit" % "1.3.3" % Test withSources() excludeAll ExclusionRule(organization = "org.specs2"),
-        "com.github.fakemongo" % "fongo" % "1.6.2" % Test withSources()
+        "com.typesafe.akka" %% "akka-testkit" % "2.4.0" % Test withSources(),
+        "io.spray" %% "spray-testkit" % "1.3.3" % Test withSources() excludeAll ExclusionRule(organization = "org.specs2")
       ))
 
   val ioPath = "../rtp-io-lib"

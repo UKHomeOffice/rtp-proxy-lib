@@ -2,14 +2,15 @@ package uk.gov.homeoffice.rtp.proxy
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import akka.actor.{ActorRef, ActorSystem, Props}
+import akka.actor._
+import akka.event.LoggingReceive
 import akka.io.IO
 import akka.pattern.ask
 import akka.util.Timeout
 import spray.can.Http
 import spray.can.Http.ClientConnectionType
 import spray.http.MediaTypes._
-import spray.http.{HttpEntity, HttpResponse}
+import spray.http.{HttpRequest, HttpEntity, HttpResponse}
 import spray.routing._
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
@@ -48,8 +49,10 @@ object ProxyActor {
   def props(proxiedConnector: ActorRef) = Props(new ProxyActor(proxiedConnector))
 }
 
-class ProxyActor(val proxiedConnector: ActorRef) extends HttpServiceActor with ProxyRoute {
-  def receive: Receive = runRoute(route)
+class ProxyActor(val proxiedConnector: ActorRef) extends HttpServiceActor with ProxyRoute with ActorLogging {
+  def receive: Receive = LoggingReceive {
+    runRoute(route)
+  }
 }
 
 trait ProxyRoute extends Directives with Logging {
@@ -67,7 +70,7 @@ trait ProxyRoute extends Directives with Logging {
   }*/
 
   val proxiedServerRoute: Route = (ctx: RequestContext) => ctx.complete {
-    info(s"Proxying request to URI ${ctx.request.uri}")
+    info(s"Proxying request of URI ${ctx.request.uri}")
     proxiedConnector.ask(ctx.request).mapTo[HttpResponse]
   }
 
