@@ -1,26 +1,16 @@
 package uk.gov.homeoffice.rtp.proxy
 
-import akka.actor.Actor
-import akka.testkit.TestActorRef
+import scala.concurrent.Future
 import spray.http.StatusCodes.OK
 import spray.http._
+import spray.routing.RequestContext
 import org.specs2.mock.Mockito
-import uk.gov.homeoffice.akka.ActorSystemContext
+import org.specs2.specification.Scope
 import uk.gov.homeoffice.spray.RouteSpecification
 
 class ProxyRouteSpec extends RouteSpecification with Mockito {
-  trait Context extends ActorSystemContext with ProxyRoute {
-    /*val connector = mock[ActorRef]
-    connector.ask(any) returns Future { HttpResponse(status = OK) }*/
-
-    val proxiedConnector = TestActorRef {
-      new Actor {
-        def receive = {
-          case _: HttpRequest =>
-            sender ! HttpResponse(status = OK)
-        }
-      }
-    }
+  trait Context extends Scope with ProxyRoute {
+    def proxy(ctx: RequestContext): Future[HttpResponse] = Future.successful(HttpResponse(status = OK))
   }
 
   "Proxy route" should {
