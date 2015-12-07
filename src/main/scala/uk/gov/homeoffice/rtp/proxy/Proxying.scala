@@ -8,24 +8,25 @@ import akka.event.LoggingReceive
 import akka.io.IO
 import akka.pattern.ask
 import akka.util.Timeout
+import org.json4s.JsonDSL._
+import org.json4s.jackson.JsonMethods._
 import spray.can.Http
 import spray.can.Http.ClientConnectionType
 import spray.http.MediaTypes._
 import spray.http.{HttpEntity, HttpResponse}
 import spray.routing._
-import org.json4s.JsonDSL._
-import org.json4s.jackson.JsonMethods._
+import uk.gov.homeoffice.configuration.HasConfig
 import uk.gov.homeoffice.json.Json
 
 object Proxying {
   def apply() = new Proxying()
 }
 
-class Proxying private[proxy] () {
+class Proxying private[proxy] () extends HasConfig {
   val customiseProxiedConnectorSetup: Http.HostConnectorSetup => Http.HostConnectorSetup = h => h
 
   def proxy(proxiedServer: ProxiedServer, server: Server)(implicit system: ActorSystem): ActorRef = {
-    implicit val timeout: Timeout = Timeout(30 seconds)
+    implicit val timeout: Timeout = Timeout(config.duration("proxied.request-timeout", 30 seconds))
 
     val proxiedConnectorSetup = customiseProxiedConnectorSetup {
       Http.HostConnectorSetup(proxiedServer.host, proxiedServer.port,
@@ -61,8 +62,8 @@ class ProxyActor(proxiedConnectorSetup: Http.HostConnectorSetup) extends HttpSer
   }
 }
 
-trait ProxyRoute extends Directives {
-  implicit val timeout: Timeout = Timeout(30 seconds)
+trait ProxyRoute extends Directives with HasConfig {
+  implicit val timeout: Timeout = Timeout(config.duration("proxied.request-timeout", 30 seconds))
 
   val serverRoute: Route = pathPrefix("proxy-server") {
     pathEndOrSingleSlash {

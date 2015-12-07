@@ -81,7 +81,7 @@ Finally you can perform a quick test of the application by calling one of the mo
 
 Example Usage
 -------------
-Proxying can be just a dum proxy or it can use certificates to create a SSL connection.
+Proxying can be just a dumb proxy or it can use certificates to create a SSL connection.
 There are examples in the code e.g. regarding SSL the application configuration would be similar to:
 ```scala
 spray {
@@ -145,6 +145,12 @@ where -k command line argument turns off SSL certificate verification.
 curl -i --cacert src/main/resources/test-certificate.crt https://localhost:9300
 ```
 where the certificate is passed along with the cURL command so a complete SSL certificate verification takes place.
+
+NOTE about timeouts.  
+Timeout of requests defaults to 30 seconds. To override this in an application.conf, declare something like:  
+proxied.request-timeout = 1 minute
+
+where you can use the likes of second, seconds, minute, minutes, hour etc.
 
 SBT - Revolver
 --------------
