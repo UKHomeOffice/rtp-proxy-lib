@@ -12,7 +12,7 @@ object Build extends Build {
     .settings(
       name := moduleName,
       organization := "uk.gov.homeoffice",
-      version := "1.0-SNAPSHOT",
+      version := "1.1.0",
       scalaVersion := "2.11.7",
       scalacOptions ++= Seq(
         "-feature",
@@ -61,12 +61,12 @@ object Build extends Build {
 
     proxy.settings(
       libraryDependencies ++= Seq(
-        "uk.gov.homeoffice" %% "rtp-io-lib" % "1.0-SNAPSHOT" withSources(),
-        "uk.gov.homeoffice" %% "rtp-io-lib" % "1.0-SNAPSHOT" % Test classifier "tests" withSources(),
-        "uk.gov.homeoffice" %% "rtp-akka-lib" % "1.0-SNAPSHOT" withSources(),
-        "uk.gov.homeoffice" %% "rtp-akka-lib" % "1.0-SNAPSHOT" % Test classifier "tests" withSources() excludeAll ExclusionRule(organization = "org.specs2"),
-        "uk.gov.homeoffice" %% "rtp-test-lib" % "1.0-SNAPSHOT" withSources(),
-        "uk.gov.homeoffice" %% "rtp-test-lib" % "1.0-SNAPSHOT" % Test classifier "tests" withSources()
+        "uk.gov.homeoffice" %% "rtp-io-lib" % "1.1.0" withSources(),
+        "uk.gov.homeoffice" %% "rtp-io-lib" % "1.1.0" % Test classifier "tests" withSources(),
+        "uk.gov.homeoffice" %% "rtp-akka-lib" % "1.1.0" withSources(),
+        "uk.gov.homeoffice" %% "rtp-akka-lib" % "1.1.0" % Test classifier "tests" withSources() excludeAll ExclusionRule(organization = "org.specs2"),
+        "uk.gov.homeoffice" %% "rtp-test-lib" % "1.0" withSources(),
+        "uk.gov.homeoffice" %% "rtp-test-lib" % "1.0" % Test classifier "tests" withSources()
       )
     )
   }
