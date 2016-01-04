@@ -27,7 +27,9 @@ class Proxying private[proxy] () extends HasConfig {
     val proxyActor = system.actorOf(ProxyActor.props(proxiedConnectorSetup), "proxy-actor")
     IO(Http) ! Http.Bind(proxyActor, server.host, server.port)
 
-    sys addShutdownHook { IO(Http) ? Http.CloseAll }
+    sys addShutdownHook {
+      IO(Http) ? Http.CloseAll
+    }
 
     proxyActor
   }
