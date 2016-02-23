@@ -5,10 +5,11 @@ import spray.http.StatusCodes.OK
 import spray.http._
 import spray.routing.RequestContext
 import org.specs2.mock.Mockito
+import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
 import uk.gov.homeoffice.spray.RouteSpecification
 
-class ProxyRouteSpec extends RouteSpecification with Mockito {
+class ProxyRouteSpec extends Specification with RouteSpecification with Mockito {
   trait Context extends Scope with ProxyRoute {
     def proxy(ctx: RequestContext): Future[HttpResponse] = Future.successful(HttpResponse(status = OK))
   }
