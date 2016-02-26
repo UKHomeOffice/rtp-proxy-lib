@@ -5,7 +5,7 @@ import spray.revolver.RevolverPlugin._
 object Build extends Build {
   val moduleName = "rtp-proxy-lib"
 
-  lazy val proxy = Project(id = moduleName, base = file("."))
+  val root = Project(id = moduleName, base = file("."))
     .configs(IntegrationTest)
     .settings(Revolver.settings)
     .settings(Defaults.itSettings: _*)
