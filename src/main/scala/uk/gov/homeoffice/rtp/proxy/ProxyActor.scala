@@ -39,7 +39,7 @@ class ProxyActor(proxiedConnectorSetup: Http.HostConnectorSetup) extends HttpSer
     val headers = request.headers.map(_.toString()).mkString(", ")
     val entity = request.entity.asString
 
-    super.log.debug(s"Proxying $protocol request to $uri, method = $method, headers = $headers, entity = $entity")
+    super.log.info(s"Proxying $protocol request to $uri, method = $method, headers = $headers, entity = $entity")
   }
 
   private def log(response: HttpResponse): Unit = {
@@ -48,6 +48,6 @@ class ProxyActor(proxiedConnectorSetup: Http.HostConnectorSetup) extends HttpSer
     val headers = response.headers.map(_.toString()).mkString(", ")
     val entity = response.entity.asString
 
-    super.log.debug(s"Proxied $protocol response of status $status, headers = $headers, entity = $entity")
+    super.log.info(s"Proxied $protocol response of status $status, headers = $headers, entity = $entity")
   }
 }
