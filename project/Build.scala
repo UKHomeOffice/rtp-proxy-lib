@@ -12,7 +12,7 @@ object Build extends Build {
     .settings(
       name := moduleName,
       organization := "uk.gov.homeoffice",
-      version := "1.3.0",
+      version := "1.3.1",
       scalaVersion := "2.11.8",
       scalacOptions ++= Seq(
         "-feature",
@@ -34,9 +34,9 @@ object Build extends Build {
       )
     )
     .settings(libraryDependencies ++= {
-      val `rtp-io-lib-version` = "1.7.0"
-      val `rtp-test-lib-version` = "1.2.0"
-      val `rtp-akka-lib-version` = "1.6.0"
+      val `rtp-io-lib-version` = "1.7.1"
+      val `rtp-test-lib-version` = "1.2.1"
+      val `rtp-akka-lib-version` = "1.6.1"
 
       Seq(
         "org.scalactic" %% "scalactic" % "2.2.4" withSources(),
