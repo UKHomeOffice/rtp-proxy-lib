@@ -77,7 +77,7 @@ and running from directory of the executable JAR using a config that is within s
 > java -Dconfig.resource=application.uat.conf -jar <jar name>.jar
 
 Finally you can perform a quick test of the application by calling one of the monitor API e.g. making a cURL call to the application:
-> curl http://localhost:9300/proxy 
+> curl http://localhost:9300/proxy-server 
 
 Example Usage
 -------------
