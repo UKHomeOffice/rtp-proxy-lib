@@ -15,19 +15,27 @@ Application built with the following (main) technologies:
 
 Introduction
 ------------
-TODO
+![alt text](docs/your-service.png "Your service")
+
+You want to call another service either securely or not, but you've been told you cannot do this directly - you need a proxy in the middle.
+
+rtp-proxy-lib acts as either a proxy - it could be a dum proxy or maybe one that makes SSL connections.
+
+Let's take the example of communicating with another service over SSL.
+
+![alt text](docs/your-service-with-proxy.png "Your service with proxy")
 
 Application
 -----------
-The application is configured as per any Akka application, where the default configuration file is "application.conf".
-This default file can be overridden with other "conf" files and then given to the application upon boot with the following example Java option:
+This module is configured as per any Akka application, where the default configuration file is "application.conf".
+This default file can be overridden with other "conf" files or system properties and then given to the application upon boot with the following example Java option:
 ```bash
 -Dconfig.file=test-classes/application.test.conf
 ```
 
-Individual configuration properties can be overridden again by Java options e.g. to override which Mongodb to connect (if Mongo required configuring):
+Individual configuration properties can be overridden again by Java options e.g. to override which Mongodb to connect e.g.:
 ```bash
--Dmongo.db=some-other-mongo
+-Dmy.foo=blah
 ```
 
 where this overrides the default in application.conf.
@@ -66,8 +74,6 @@ To run the specs:
 sbt test
 ```
 
-Note: Do not turn off the CONSOLE logging in test/resources/logback.xml as there are Specs that rely on this
-
 To actually run the application, first "assemble" it:
 ```bash
 sbt assembly
@@ -85,11 +91,6 @@ java -Dconfig.file=test-classes/my-application.conf -jar <jar name>.jar
 Note that the log configuration file could also be included e.g.
 ```bash
 -Dlogback.configurationFile=path/to/my-logback.xml
-```
-
-So a more indepth startup with sbt itself could be:
-```bash
-sbt run -Dconfig.file=target/scala-2.11/test-classes/application.test.conf -Dlogback.configurationFile=target/scala-2.11/test-classes/logback.test.xml
 ```
 
 And other examples:
