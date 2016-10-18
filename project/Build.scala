@@ -34,18 +34,18 @@ object Build extends Build {
       )
     )
     .settings(libraryDependencies ++= {
-      val `rtp-io-lib-version` = "1.7.2"
-      val `rtp-test-lib-version` = "1.2.1"
-      val `rtp-akka-lib-version` = "1.6.1"
+      val `rtp-io-lib-version` = "1.7.23"
+      val `rtp-test-lib-version` = "1.3.4"
+      val `rtp-akka-lib-version` = "2.0.0"
 
       Seq(
-        "org.scalactic" %% "scalactic" % "2.2.4" withSources(),
+        "org.scalactic" %% "scalactic" % "3.0.0" withSources(),
         "org.springframework" % "spring-core" % "4.2.1.RELEASE" withSources(),
         "uk.gov.homeoffice" %% "rtp-io-lib" % `rtp-io-lib-version` withSources(),
         "uk.gov.homeoffice" %% "rtp-test-lib" % `rtp-test-lib-version` withSources(),
         "uk.gov.homeoffice" %% "rtp-akka-lib" % `rtp-akka-lib-version` withSources()
       ) ++ Seq(
-        "com.typesafe.akka" %% "akka-testkit" % "2.4.0" % Test withSources(),
+        "com.typesafe.akka" %% "akka-testkit" % "2.4.10" % Test withSources(),
         "io.spray" %% "spray-testkit" % "1.3.3" % Test withSources() excludeAll ExclusionRule(organization = "org.specs2"),
         "uk.gov.homeoffice" %% "rtp-io-lib" % `rtp-io-lib-version` % Test classifier "tests" withSources(),
         "uk.gov.homeoffice" %% "rtp-test-lib" % `rtp-test-lib-version` % Test classifier "tests" withSources(),

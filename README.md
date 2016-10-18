@@ -19,7 +19,7 @@ Introduction
 
 You want to call another service either securely or not, but you've been told you cannot do this directly - you need a proxy in the middle.
 
-rtp-proxy-lib acts as either a proxy - it could be a dum proxy or maybe one that makes SSL connections.
+rtp-proxy-lib acts as either a proxy - it could be a dumb proxy or maybe one that makes SSL connections.
 
 Let's take the example of communicating with another service over SSL.
 
@@ -118,19 +118,28 @@ There are examples in the code e.g. regarding SSL the application configuration 
 spray {
   can {
     server {
-      sslEncryption = true
+      name = "your-service-spray-can"
+      host = "0.0.0.0"
+      port = 9300
+      request-timeout = 5 minutes
+      idle-timeout = 10 minutes
+      service = "http-routing-service"
+      remote-address-header = on
       ssl-tracing = on
     }
 
     client {
-      sslEncryption = true
+      ssl-tracing = on
+      request-timeout = 5 minutes
     }
   }
 }
 
-proxied.server {
-  host = "localhost"
-  port = 8443
+proxied {
+  server {
+    host = "localhost"
+    port = 8443
+  }  
 }
 
 ssl {
@@ -147,52 +156,51 @@ ssl {
   }
 }
 ```
+The "proxied.server" is the host and port of the service that you would normally connected to, but now that service will be proxied.
+If the proxy is to make SSL connections to "some service" then you must configure where this proxy will acquire the necessary certificates and you must "boot" the proxy using SSLProxying instead of the default Proxying.
+
 And a "boot" object would be required for your proxy such as:
 ```scala
-object ExampleBootSSL extends App with HasConfig {
-  val proxiedServer = ProxiedServer(config.getString("proxied.server.host"),
-                                    config.getInt("proxied.server.port"))
+object ExampleBootSSL extends App {
+  val config = ConfigFactory.load("application.example.ssl.conf")
 
-  val server = Server(config.getString("spray.can.server.host"),
-                      config.getInt("spray.can.server.port"))
+  val proxiedServer = ProxiedServer(config.getString("proxied.server.host"), config.getInt("proxied.server.port"))
 
-  implicit val system = ActorSystem(config.getString("spray.can.server.name"))
+  val server = Server(config.getString("spray.can.server.host"), config.getInt("spray.can.server.port"))
+
+  implicit val system = ActorSystem("rtp-proxy-ssl-example-spray-can", config)
 
   sys.addShutdownHook {
-    system.shutdown()
+    system.terminate()
   }
 
   SSLProxying(sslContext(config)).proxy(proxiedServer, server)
 }
 ```
 
-We can cURL the application - Note that this is related to the SSL section below e.g.
+We can cURL the application (assuming that some service is being proxied) e.g.
 ```bash
-curl -ki https://localhost:9300
+curl -ki http://localhost:9300
 ```
 where -k command line argument turns off SSL certificate verification.
 
+Or where the certificate is passed along with the cURL command so a complete SSL certificate verification takes place:
 ```bash
 curl -i --cacert src/main/resources/test-certificate.crt https://localhost:9300
 ```
-where the certificate is passed along with the cURL command so a complete SSL certificate verification takes place.
+
+Note, that there is a built in health endpoint for the proxy itself:
+```
+curl -ki http://localhost:9300/proxy-server
+```
 
 NOTE about timeouts.
-Timeout of requests defaults to 30 seconds. To override this in an application.conf, declare something like:  
+Timeout of requests defaults to 30 seconds. To override this in an application.conf, declare something like:
+````
 proxied.request-timeout = 1 minute
+```
 
 where you can use the likes of second, seconds, minute, minutes, hour etc.
-
-SBT - Revolver
---------------
-sbt-revolver is a plugin for SBT enabling a super-fast development turnaround for your Scala applications:
-
-See https://github.com/spray/sbt-revolver
-
-For development, you can use ~re-start to go into "triggered restart" mode.
-Your application starts up and SBT watches for changes in your source (or resource) files.
-If a change is detected SBT recompiles the required classes and sbt-revolver automatically restarts your application. 
-When you press &lt;ENTER&gt; SBT leaves "triggered restart" and returns to the normal prompt keeping your application running.
 
 SSL
 ---

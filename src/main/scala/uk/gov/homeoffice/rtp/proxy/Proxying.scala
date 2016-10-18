@@ -7,17 +7,17 @@ import akka.pattern.ask
 import akka.util.Timeout
 import spray.can.Http
 import spray.can.Http.ClientConnectionType
-import uk.gov.homeoffice.configuration.HasConfig
+import uk.gov.homeoffice.configuration.ConfigFactorySupport
 
 object Proxying {
   def apply() = new Proxying()
 }
 
-class Proxying private[proxy] () extends HasConfig {
+class Proxying private[proxy] () extends ConfigFactorySupport {
   val customiseProxiedConnectorSetup: Http.HostConnectorSetup => Http.HostConnectorSetup = h => h
 
   def proxy(proxiedServer: ProxiedServer, server: Server)(implicit system: ActorSystem): ActorRef = {
-    implicit val timeout: Timeout = Timeout(config.duration("proxied.request-timeout", 30 seconds))
+    implicit val timeout: Timeout = Timeout(system.settings.config.duration("proxied.request-timeout", 30 seconds))
 
     val proxiedConnectorSetup = customiseProxiedConnectorSetup {
       Http.HostConnectorSetup(proxiedServer.host, proxiedServer.port,

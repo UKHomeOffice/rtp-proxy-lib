@@ -11,7 +11,7 @@ import uk.gov.homeoffice.spray.RouteSpecification
 
 class ProxyRouteSpec extends Specification with RouteSpecification with Mockito {
   trait Context extends Scope with ProxyRoute {
-    def proxy(ctx: RequestContext): Future[HttpResponse] = Future.successful(HttpResponse(status = OK))
+    def proxy(ctx: RequestContext): Future[HttpResponse] = Future successful HttpResponse(status = OK)
   }
 
   "Proxy route" should {
